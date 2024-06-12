@@ -3139,7 +3139,7 @@ class PartyBase:
                 'Arena_S10_Division1_Trios',
             )
         """
-        return self.meta.playlist_info
+        return None
 
     @property
     def squad_fill(self) -> bool:
