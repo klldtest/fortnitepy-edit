@@ -3498,7 +3498,7 @@ class ClientParty(PartyBase, Patchable):
                     'numKills': 0,
                     'bFellToDeath': False,
                 },
-                'GamePlaylistName_s': self.meta.playlist_info[0],
+                'GamePlaylistName_s': None,
                 'Event_PlayersAlive_s': '0',
                 'Event_PartySize_s': str(len(self._members)),
                 'Event_PartyMaxSize_s': str(self.max_size),
