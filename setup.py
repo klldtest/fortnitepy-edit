@@ -28,7 +28,7 @@ setuptools.setup(
       "Documentation": "https://fortnitepy.readthedocs.io/en/latest/",
       "Issue tracker": "https://github.com/klldme/fortnitepy-edit/Issue",
     },
-    version="1.1.0",
+    version="1.1.1",
     author="klld",
     description="Library for interacting with fortnite services",
     long_description=long_description,
