@@ -1151,9 +1151,7 @@ class PartyMeta(MetaBase):
         base = self.get_prop('Default:PlaylistData_j')
         info = base['PlaylistData']
 
-        return (info['playlistName'],
-                info['tournamentId'],
-                info['eventWindowId'])
+        return None
 
     @property
     def squad_fill(self) -> bool:
