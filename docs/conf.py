@@ -22,9 +22,9 @@ sys.path.append(os.path.abspath('localexts'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'fortnitepy'
-copyright = '2019-2021, Terbau'
-author = 'Terbau'
+project = 'fortnitepy-edit'
+copyright = '2024, klld'
+author = 'klld'
 
 version = ''
 with open('../fortnitepy/__init__.py') as f:
