@@ -31,26 +31,33 @@ python3 -m pip install -U fortnitepy-edit
 # Basic usage
 ```py
 import fortnitepy
+import asyncio
 
 from fortnitepy.ext import commands
 
-bot = commands.Bot(
-    command_prefix='!',
-    auth=fortnitepy.DeviceCodeAuth()
-)
+async def main():
+    bot = commands.Bot(
+        command_prefix='!',
+        auth=fortnitepy.DeviceCodeAuth()
+    )
 
-@bot.event
-async def event_ready():
-    print(f'Bot ready as {bot.user.display_name} ({bot.user.id})')
+    @bot.event
+    async def event_ready():
+        print('----------------')
+        print('Bot ready as')
+        print(bot.user.display_name)
+        print('----------------')
 
-@bot.event
-async def event_friend_request(request):
-    await request.accept()
+    @bot.event
+    async def event_friend_request(request):
+        await request.accept()
 
-@bot.command()
-async def hello(ctx):
-    await ctx.send('Hello!')
+    @bot.command()
+    async def hello(ctx):
+        await ctx.send('Hello!')
 
+    await bot.start()
 
-bot.run()
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
