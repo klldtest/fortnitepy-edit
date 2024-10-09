@@ -1,7 +1,0 @@
-sphinxcontrib-trio
-furo==2021.4.11b34
-Jinja2<3.1
-aiohttp>=3.3
-aioxmpp>=0.13.2
-aioconsole>=0.1.15
-sphinx
