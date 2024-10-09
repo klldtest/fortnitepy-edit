@@ -25,7 +25,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-__version__ = '1.1.4'
+__version__ = '1.1.5'
 
 from .client import Client, run_multiple, start_multiple, close_multiple
 from .auth import (Auth, DeviceCodeAuth, ExchangeCodeAuth,
