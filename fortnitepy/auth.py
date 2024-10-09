@@ -760,6 +760,10 @@ class DeviceAuth(Auth):
             priority=priority
         )
         self._update_data(data)
+        data = await self.grant_chat_refresh_token(
+            self.refresh_token,
+        )
+        self._update_chat_data(data)
 
     async def reauthenticate(self, priority: int = 0) -> None:
         """Used for reauthenticating if refreshing fails."""
