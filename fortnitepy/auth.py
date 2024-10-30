@@ -782,11 +782,12 @@ class RefreshTokenAuth(Auth):
     refresh_token: :class:`str`
         A valid launcher refresh token.
     """
-    def __init__(self, refresh_token: str,
-                 **kwargs: Any) -> None:
+
+    def __init__(self, refresh_token: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         self._refresh_token = refresh_token
+        self.chat_access_token = None
 
     @property
     def identifier(self) -> str:
@@ -801,19 +802,31 @@ class RefreshTokenAuth(Auth):
             self.ios_token,
             priority=priority
         )
+        self.chat_access_token = data.get('chat_access_token')
         return data
+
+    async def grant_refresh_token(self, refresh_token: str, ios_token: str, priority: int = 0) -> dict:
+        response = await self.client.http.account_oauth_grant(
+            auth=f'basic {ios_token}',
+            data={
+                'grant_type': 'refresh_token',
+                'refresh_token': refresh_token
+            },
+            priority=priority
+        )
+        return response
 
     async def authenticate(self, priority: int = 0) -> None:
         data = await self.ios_authenticate(priority=priority)
-        self._update_ios_data(data)
-
-        code = await self.get_exchange_code(priority=priority)
-        data = await self.exchange_code_for_session(
-            self.fortnite_token,
-            code,
-            priority=priority
-        )
         self._update_data(data)
+
+    async def reauthenticate(self, priority: int = 0) -> None:
+        """Used for reauthenticating if refreshing fails."""
+        log.debug('Starting reauthentication.')
+
+        await self.authenticate(priority=priority)
+
+        log.debug('Successfully reauthenticated.')
 
 class DeviceCodeAuth(Auth):
     """Authenticate with device code.
