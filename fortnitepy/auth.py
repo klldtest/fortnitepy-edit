@@ -775,58 +775,31 @@ class DeviceAuth(Auth):
 
 
 class RefreshTokenAuth(Auth):
-    """Authenticates by the passed launcher refresh token.
-
-    Parameters
-    ----------
-    refresh_token: :class:`str`
-        A valid launcher refresh token.
-    """
+    """Handles authentication using a refresh token."""
 
     def __init__(self, refresh_token: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-
-        self._refresh_token = refresh_token
+        self.refresh_token = refresh_token
         self.chat_access_token = None
 
-    @property
-    def identifier(self) -> str:
-        return self._refresh_token
+    async def authenticate(self, **kwargs) -> None:
+        await self.ios_authenticate()
 
-    def eula_check_needed(self) -> bool:
-        return False
+        if self.client.kill_other_sessions:
+            await self.kill_other_sessions()
 
-    async def ios_authenticate(self, priority: int = 0) -> dict:
-        data = await self.grant_refresh_token(
-            self._refresh_token,
-            self.ios_token,
-            priority=priority
+        # Grant chat refresh token and update chat data
+        data = await self.grant_chat_refresh_token(
+            self.refresh_token,
         )
-        self.chat_access_token = data.get('chat_access_token')
-        return data
+        self._update_chat_data(data)
 
-    async def grant_refresh_token(self, refresh_token: str, ios_token: str, priority: int = 0) -> dict:
-        response = await self.client.http.account_oauth_grant(
-            auth=f'basic {ios_token}',
-            data={
-                'grant_type': 'refresh_token',
-                'refresh_token': refresh_token
-            },
-            priority=priority
+        code = await self.get_exchange_code()
+        data = await self.exchange_code_for_session(
+            self.fortnite_token,
+            code
         )
-        return response
-
-    async def authenticate(self, priority: int = 0) -> None:
-        data = await self.ios_authenticate(priority=priority)
         self._update_data(data)
-
-    async def reauthenticate(self, priority: int = 0) -> None:
-        """Used for reauthenticating if refreshing fails."""
-        log.debug('Starting reauthentication.')
-
-        await self.authenticate(priority=priority)
-
-        log.debug('Successfully reauthenticated.')
 
 class DeviceCodeAuth(Auth):
     """Authenticate with device code.
