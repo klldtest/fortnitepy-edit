@@ -775,20 +775,41 @@ class DeviceAuth(Auth):
 
 
 class RefreshTokenAuth(Auth):
-    """Handles authentication using a refresh token."""
+    """Authenticates by the passed launcher refresh token.
+
+    Parameters
+    ----------
+    refresh_token: :class:`str`
+        A valid launcher refresh token.
+    """ 
 
     def __init__(self, refresh_token: str, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.refresh_token = refresh_token
         self.chat_access_token = None
 
+    async def ios_authenticate(self) -> dict:
+        payload = {
+            'grant_type': 'refresh_token',
+            'refresh_token': self.refresh_token,
+        }
+        
+        try:
+            data = await self.client.http.account_oauth_grant(
+                auth='basic {0}'.format(self.fortnite_token),
+                data=payload
+            )
+        except HTTPException as e:
+            raise AuthException('Invalid refresh token', e) from e
+
+        return data
+
     async def authenticate(self, **kwargs) -> None:
         await self.ios_authenticate()
-
+        
         if self.client.kill_other_sessions:
             await self.kill_other_sessions()
 
-        # Grant chat refresh token and update chat data
         data = await self.grant_chat_refresh_token(
             self.refresh_token,
         )
