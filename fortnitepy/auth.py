@@ -781,46 +781,32 @@ class RefreshTokenAuth(Auth):
     ----------
     refresh_token: :class:`str`
         A valid launcher refresh token.
-    """ 
-
-    def __init__(self, refresh_token: str, **kwargs: Any) -> None:
+    """
+    def __init__(self, refresh_token: str,
+                 **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.refresh_token = refresh_token
-        self.chat_access_token = None
 
-    async def ios_authenticate(self) -> dict:
-        payload = {
-            'grant_type': 'refresh_token',
-            'refresh_token': self.refresh_token,
-        }
-        
-        try:
-            data = await self.client.http.account_oauth_grant(
-                auth='basic {0}'.format(self.fortnite_token),
-                data=payload
-            )
-        except HTTPException as e:
-            raise AuthException('Invalid refresh token', e) from e
+        self._refresh_token = refresh_token
 
-        return data
+    @property
+    def identifier(self) -> str:
+        return self._refresh_token
 
-    async def authenticate(self, **kwargs) -> None:
-        await self.ios_authenticate()
-        
-        if self.client.kill_other_sessions:
-            await self.kill_other_sessions()
+    def eula_check_needed(self) -> bool:
+        return False
 
-        data = await self.grant_chat_refresh_token(
+    async def ios_authenticate(self, priority: int = 0) -> dict:
+        data = await self.grant_refresh_token(
+            self._refresh_token,
+            self.ios_token,
+            priority=priority
+        )
+        datachat = await self.grant_chat_refresh_token(
             self.refresh_token,
+            self.ios_token,
+            priority=priority
         )
-        self._update_chat_data(data)
-
-        code = await self.get_exchange_code()
-        data = await self.exchange_code_for_session(
-            self.fortnite_token,
-            code
-        )
-        self._update_data(data)
+        return data, datachat
 
 class DeviceCodeAuth(Auth):
     """Authenticate with device code.
